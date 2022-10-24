@@ -97,9 +97,11 @@ export class App extends Component {
           <Button onLoadMoreClick={this.fetchImages} />
         )}
         {showModal && (
-          <Modal onClose={this.closeModal}>
-            <img src={fullSizeImg} alt={searchQuery} />
-          </Modal>
+          <Modal
+            fullSizeImg={fullSizeImg}
+            searchQuery={searchQuery}
+            onClose={this.closeModal}
+          ></Modal>
         )}
       </div>
     );
