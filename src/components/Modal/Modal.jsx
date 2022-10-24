@@ -13,16 +13,14 @@ export default class Modal extends Component {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      console.log('Нажали ESC, нужно закрыть модалку');
-
+  handleKeyDown = evt => {
+    if (evt.code === 'Escape') {
       this.props.onClose();
     }
   };
 
-  handleBackdropClick = event => {
-    if (event.currentTarget === event.target) {
+  handleBackdropClick = evt => {
+    if (evt.currentTarget === evt.target) {
       this.props.onClose();
     }
   };
