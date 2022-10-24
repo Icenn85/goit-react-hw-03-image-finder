@@ -1,44 +1,45 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { ImSearch } from 'react-icons/im';
 import css from './Searchbar.module.css';
 
 class Searchbar extends Component {
   state = {
-    query: '',
+    searchQuery: '',
   };
 
-  handleChange = evt => {
-    this.setState({ query: evt.currentTarget.value.toLowerCase() });
+  handleQueryChange = e => {
+    this.setState({ searchQuery: e.currentTarget.value.toLowerCase() });
   };
 
-  handleSubmit = evt => {
-    evt.preventDefault();
-    const { query } = this.state;
+  handleSubmit = e => {
+    e.preventDefault();
 
-    if (query.trim() === '') {
-      alert('Enter what image you are looking for.');
+    if (this.state.searchQuery.trim() === '') {
+      alert('Please enter your search term');
       return;
     }
 
-    this.props.onSubmit(query);
+    this.props.onSubmit(this.state.searchQuery);
+    this.setState({ searchQuery: '' });
   };
 
   render() {
     return (
       <header className={css.searchbar}>
-        <form onSubmit={this.handleSubmit} className={css.searchForm}>
+        <form className={css.searchForm} onSubmit={this.handleSubmit}>
           <button type="submit" className={css.searchForm__button}>
-            <span className={css.searchForm__button__label}>Search</span>
+            <ImSearch />
           </button>
 
           <input
-            onChange={this.handleChange}
             className={css.searchForm__input}
-            value={this.state.query}
             type="text"
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
+            value={this.state.searchQuery}
+            onChange={this.handleQueryChange}
           />
         </form>
       </header>
@@ -46,8 +47,8 @@ class Searchbar extends Component {
   }
 }
 
+export default Searchbar;
+
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
-
-export default Searchbar;
