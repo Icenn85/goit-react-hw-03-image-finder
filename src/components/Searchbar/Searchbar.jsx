@@ -12,17 +12,17 @@ class Searchbar extends Component {
     this.setState({ searchQuery: e.currentTarget.value.toLowerCase() });
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
+    handleSubmit = e => {
+        e.preventDefault();
+      
+        if (this.state.searchQuery.trim() === '') {
+            alert('Please enter your search term');
+            return;
+        };
 
-    if (this.state.searchQuery.trim() === '') {
-      alert('Please enter your search term');
-      return;
+        this.props.onSubmit(this.state.searchQuery);
+        this.setState({ searchQuery: '' });
     }
-
-    this.props.onSubmit(this.state.searchQuery);
-    this.setState({ searchQuery: '' });
-  };
 
   render() {
     return (

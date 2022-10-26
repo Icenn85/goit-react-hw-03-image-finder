@@ -15,48 +15,58 @@ export class App extends Component {
     images: [],
     showModal: false,
     fullSizeImg: '',
-    isEndOfArray: false,
+    isEndOfArray: true,
   };
 
-  handleFormSubmit = searchQuery => {
-    this.setState({ images: [], searchQuery, page: 1 });
+  onHandleFormSubmit = data => {
+    this.setState({ images: [], searchQuery: data, page: 1 });
   };
-
 
   componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevState.searchQuery;
     const nextQuery = this.state.searchQuery;
+    const prevPage = prevState.page;
+    const nextPage = this.state.page;
 
-    if (prevQuery !== nextQuery) {
+    if (prevQuery !== nextQuery || prevPage !== nextPage) {
       this.fetchImages();
     }
   }
 
   fetchImages = async () => {
+    this.setState({ isLoading: true });
+    const { searchQuery, page } = this.state;
     try {
-      this.setState({ isLoading: true });
-      const { searchQuery, page } = this.state;
       const { data } = await getImages(searchQuery, page);
-      if (data.hits.length === 0) {
-        alert(
-          'Sorry, there are no images matching your search query. Please try again'
-        );
-        this.setState({ isLoading: false });
-        return;
-      }
-      if (this.state.page > data.totalHits / 12) {
-        alert('We are sorry, but you have reached the end of search results.');
-        this.setState({ isEndOfArray: true, isLoading: false });
-        return;
-      }
       this.setState(prevState => ({
-        isLoading: false,
         images: [...prevState.images, ...data.hits],
-        page: prevState.page + 1,
+        isLoading: false,
       }));
+
+      if (data.totalHits === 0) {
+        alert(
+          'Cannot find your request! Please try again'
+        );
+        return;
+      }
+      if (this.state.page > data.totalHits / 12 && data.totalHits !== 0) {
+        alert('We are sorry, but you have reached the end of search results.');
+        this.setState({ isEndOfArray: false });
+        return;
+      }
+      if (data.totalHits !== 0 && page === 1) {
+        alert(`We find ${data.totalHits} images`);
+        return;
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  onLoadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   openModal = largeImageURL => {
@@ -81,8 +91,7 @@ export class App extends Component {
     } = this.state;
     return (
       <div className={css.app}>
-        <Searchbar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={images} onImageClick={this.openModal} />
+        <Searchbar onSubmit={this.onHandleFormSubmit} />
         {isLoading && (
           <div className={css.loader}>
             <Circles
@@ -93,8 +102,11 @@ export class App extends Component {
             />
           </div>
         )}
-        {images.length !== 0 && !isEndOfArray && (
-          <Button onLoadMoreClick={this.fetchImages} />
+        {images.length > 0 && (
+          <ImageGallery images={images} onImageClick={this.openModal} />
+        )}
+        {images.length > 0 && isEndOfArray && (
+          <Button onLoadMoreClick={this.onLoadMore} />
         )}
         {showModal && (
           <Modal
